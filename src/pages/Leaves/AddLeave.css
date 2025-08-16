@@ -1,0 +1,45 @@
+
+
+.add-leave-form {
+  background: #fff;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+}
+
+.add-leave-form h3 {
+  color: #5a2d82;
+  margin-bottom: 16px;
+}
+
+.add-leave-form input,
+.add-leave-form select,
+.add-leave-form textarea {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 14px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 14px;
+}
+
+.add-leave-form input:focus,
+.add-leave-form select:focus,
+.add-leave-form textarea:focus {
+  border-color: #5a2d82;
+  outline: none;
+}
+
+.save-leave-btn {
+  background-color: #5a2d82;
+  color: #fff;
+  padding: 10px 16px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.save-leave-btn:hover {
+  background-color: #4a236d;
+}

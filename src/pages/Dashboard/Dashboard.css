@@ -1,0 +1,89 @@
+
+
+.dashboard-container {
+  padding: 30px;
+  background: #f7f8fc;
+  min-height: 100vh;
+  font-family: "Segoe UI", sans-serif;
+  color: #333;
+}
+
+
+.dashboard-header {
+  font-size: 26px;
+  font-weight: 700;
+  color: #4b0082;
+  margin-bottom: 28px;
+  border-left: 5px solid #6a0dad;
+  padding-left: 12px;
+}
+
+.dashboard-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 25px;
+}
+
+
+.dashboard-card {
+  background: #fff;
+  padding: 25px;
+  border-radius: 16px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  position: relative;
+  overflow: hidden;
+}
+
+
+.dashboard-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 8px 20px rgba(75, 0, 130, 0.15);
+}
+
+
+.dashboard-card .icon {
+  width: 45px;
+  height: 45px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 15px;
+  font-size: 20px;
+  font-weight: bold;
+  color: #fff;
+}
+
+
+.dashboard-card.employees .icon {
+  background: #6a0dad;
+}
+.dashboard-card.attendance .icon {
+  background: #ff6b6b;
+}
+.dashboard-card.leaves .icon {
+  background: #1e90ff;
+}
+.dashboard-card.candidates .icon {
+  background: #28a745;
+}
+
+
+.dashboard-card h3 {
+  font-size: 18px;
+  font-weight: 700;
+  color: #4b0082;
+  margin-bottom: 6px;
+}
+
+
+.dashboard-card p {
+  font-size: 22px;
+  font-weight: 600;
+  color: #333;
+  margin: 0;
+}

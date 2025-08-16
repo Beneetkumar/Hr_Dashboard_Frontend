@@ -1,0 +1,43 @@
+
+
+.add-attendance-form {
+  background: #fff;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+}
+
+.add-attendance-form h3 {
+  color: #5a2d82;
+  margin-bottom: 16px;
+}
+
+.add-attendance-form input,
+.add-attendance-form select {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 14px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 14px;
+}
+
+.add-attendance-form input:focus,
+.add-attendance-form select:focus {
+  border-color: #5a2d82;
+  outline: none;
+}
+
+.save-attendance-btn {
+  background-color: #5a2d82;
+  color: #fff;
+  padding: 10px 16px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.save-attendance-btn:hover {
+  background-color: #4a236d;
+}

@@ -47,3 +47,36 @@
   border-radius: 8px;
   cursor: pointer;
 }
+
+.register-text {
+  margin-top: 15px;
+  font-size: 14px;
+  color: #555;
+}
+
+.register-link {
+  color: #4b0082;
+  font-weight: bold;
+  text-decoration: none;
+}
+
+.register-link:hover {
+  text-decoration: underline;
+}
+.switch-text {
+  margin-top: 15px;
+  font-size: 14px;
+  color: #555;
+  text-align: center;
+}
+
+.switch-link {
+  color: #4b0082;
+  font-weight: bold;
+  text-decoration: none;
+}
+
+.switch-link:hover {
+  text-decoration: underline;
+}
+

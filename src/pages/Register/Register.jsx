@@ -1,6 +1,6 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import "./Register.css";  
+import { useNavigate, Link } from "react-router-dom";
+import "./Register.css";
 
 const API = "http://localhost:5000";
 
@@ -48,18 +48,46 @@ export default function Register() {
         <form onSubmit={handleSubmit}>
           <div className="form-group">
             <label>Name</label>
-            <input name="name" value={formData.name} onChange={handleChange} required />
+            <input
+              name="name"
+              value={formData.name}
+              onChange={handleChange}
+              placeholder="Enter your name"
+              required
+            />
           </div>
           <div className="form-group">
             <label>Email</label>
-            <input name="email" value={formData.email} onChange={handleChange} required />
+            <input
+              type="email"
+              name="email"
+              value={formData.email}
+              onChange={handleChange}
+              placeholder="Enter your email"
+              required
+            />
           </div>
           <div className="form-group">
             <label>Password</label>
-            <input type="password" name="password" value={formData.password} onChange={handleChange} required />
+            <input
+              type="password"
+              name="password"
+              value={formData.password}
+              onChange={handleChange}
+              placeholder="Enter your password"
+              required
+            />
           </div>
           <button type="submit" className="btn">Register</button>
         </form>
+
+        {/* 👇 Login link */}
+        <p className="switch-text">
+          Already have an account?{" "}
+          <Link to="/login" className="switch-link">
+            Login
+          </Link>
+        </p>
       </div>
     </div>
   );

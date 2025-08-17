@@ -3,7 +3,9 @@ import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../../hooks/useAuth";
 import "./Login.css";
 
-const API = "http://localhost:5000";
+// Use env variable for API base URL
+const API =
+  import.meta.env.VITE_API_URL || "http://localhost:5000/api";
 
 export default function Login() {
   const { login } = useAuth();
@@ -17,7 +19,7 @@ export default function Login() {
     setError("");
 
     try {
-      const res = await fetch(`${API}/api/auth/login`, {
+      const res = await fetch(`${API}/auth/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",

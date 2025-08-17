@@ -3,6 +3,10 @@ import { useState, useContext, createContext, useEffect } from "react";
 
 const AuthContext = createContext();
 
+// Use environment variable or fallback to localhost (for dev)
+const API_BASE_URL =
+  import.meta.env.VITE_API_URL || "http://localhost:5000/api";
+
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -27,7 +31,7 @@ export const AuthProvider = ({ children }) => {
   // Fetch user from backend if session cookie exists
   const fetchUserFromServer = async () => {
     try {
-      const res = await fetch("http://localhost:5000/api/auth/me", {
+      const res = await fetch(`${API_BASE_URL}/auth/me`, {
         credentials: "include",
       });
       if (res.ok) {
@@ -54,7 +58,7 @@ export const AuthProvider = ({ children }) => {
     setUser(null);
     localStorage.removeItem("user");
     try {
-      await fetch("http://localhost:5000/api/auth/logout", {
+      await fetch(`${API_BASE_URL}/auth/logout`, {
         method: "POST",
         credentials: "include",
       });

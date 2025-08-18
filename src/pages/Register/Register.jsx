@@ -2,8 +2,9 @@ import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import "./Register.css";
 
-const API =
-  import.meta.env.VITE_API_URL || "http://localhost:5000"; // 👈 use env var
+const API_BASE_URL =
+  import.meta.env.VITE_API_URL ||
+  "https://hr-dashboard-backend-99kv.onrender.com/api"; // ✅ includes /api
 
 export default function Register() {
   const [formData, setFormData] = useState({
@@ -23,11 +24,11 @@ export default function Register() {
     setError("");
 
     try {
-      const res = await fetch(`${API}/api/auth/register`, {
+      const res = await fetch(`${API_BASE_URL}/auth/register`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),
-        credentials: "include", // 👈 ensures cookie is stored
+        credentials: "include", // ✅ ensures cookie is stored
       });
 
       const data = await res.json();

@@ -39,14 +39,14 @@ export const AuthProvider = ({ children }) => {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),
-        credentials: "include", // ✅ cookie saved in browser
+        credentials: "include",
       });
 
       if (!res.ok) {
         throw new Error("Login failed");
       }
 
-      // ✅ Once logged in, fetch user details
+      // ✅ fetch user after login
       await fetchUserFromServer();
     } catch (err) {
       console.error("Login error:", err);

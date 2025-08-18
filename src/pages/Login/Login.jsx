@@ -3,6 +3,10 @@ import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../../hooks/useAuth";
 import "./Login.css";
 
+const API_BASE_URL =
+  import.meta.env.VITE_API_URL ||
+  "https://hr-dashboard-backend-99kv.onrender.com/api";
+
 export default function Login() {
   const { login } = useAuth();
   const [email, setEmail] = useState("");
@@ -10,42 +14,46 @@ export default function Login() {
   const [error, setError] = useState("");
   const navigate = useNavigate();
 
- const handleLogin = async (e) => {
-  e.preventDefault();
-  setError("");
+  const handleLogin = async (e) => {
+    e.preventDefault();
+    setError("");
 
-  try {
-    const res = await fetch(`${API}/auth/login`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      credentials: "include",
-      body: JSON.stringify({
-        email: email.trim().toLowerCase(),
-        password,
-      }),
-    });
+    try {
+      const res = await fetch(`${API_BASE_URL}/auth/login`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({
+          email: email.trim().toLowerCase(),
+          password,
+        }),
+      });
 
-    const data = await res.json();
+      const data = await res.json();
 
-    if (res.ok) {
-      if (!data?.role) {
-        setError("Login failed: role not found in response");
-        return;
+      if (res.ok) {
+        if (!data?.role) {
+          setError("Login failed: role not found in response");
+          return;
+        }
+        if (data.role !== "HR") {
+          setError("Access denied: This dashboard is for HR only.");
+          return;
+        }
+
+        localStorage.setItem("user", JSON.stringify(data));
+
+        // ✅ Call context login (don’t pass data directly, it fetches /auth/me internally)
+        await login(email, password);
+
+        navigate("/");
+      } else {
+        setError(data?.message || "Login failed");
       }
-      if (data.role !== "HR") {
-        setError("Access denied: This dashboard is for HR only.");
-        return;
-      }
-      localStorage.setItem("user", JSON.stringify(data));
-      login(data);
-      navigate("/");
-    } else {
-      setError(data?.message || "Login failed");
+    } catch (err) {
+      setError("Server error, please try again later");
     }
-  } catch (err) {
-    setError("Server error, please try again later");
-  }
-};
+  };
 
   return (
     <div className="login-page">

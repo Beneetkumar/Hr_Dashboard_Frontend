@@ -3,10 +3,6 @@ import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../../hooks/useAuth";
 import "./Login.css";
 
-// Use env variable for API base URL
-const API =
-  import.meta.env.VITE_API_URL || "http://localhost:5000/api";
-
 export default function Login() {
   const { login } = useAuth();
   const [email, setEmail] = useState("");
@@ -19,30 +15,22 @@ export default function Login() {
     setError("");
 
     try {
-      const res = await fetch(`${API}/auth/login`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify({
-          email: email.trim().toLowerCase(),
-          password,
-        }),
-      });
+      const success = await login(email.trim().toLowerCase(), password);
 
-      const data = await res.json();
-
-      if (res.ok) {
-        if (data.role !== "HR") {
-          setError("Access denied: This dashboard is for HR only.");
-          return;
-        }
-        localStorage.setItem("user", JSON.stringify(data));
-        login(data);
-        navigate("/");
-      } else {
-        setError(data?.message || "Login failed");
+      if (success === false) {
+        setError("Login failed. Please check credentials.");
+        return;
       }
+
+      // ✅ Extra role check (optional)
+      if (success.role !== "HR") {
+        setError("Access denied: This dashboard is for HR only.");
+        return;
+      }
+
+      navigate("/");
     } catch (err) {
+      console.error("Login error:", err);
       setError("Server error, please try again later");
     }
   };
@@ -76,7 +64,6 @@ export default function Login() {
           <button type="submit" className="btn">Login</button>
         </form>
 
-        {/* Register link */}
         <p className="switch-text">
           Don’t have an account?{" "}
           <Link to="/register" className="switch-link">

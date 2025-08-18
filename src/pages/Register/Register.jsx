@@ -1,10 +1,12 @@
 import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
+import { useAuth } from "../../hooks/useAuth"; // ✅ use AuthContext
 import "./Register.css";
 
-const API = "http://localhost:5000";
+const API = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
 
 export default function Register() {
+  const { login } = useAuth(); // ✅ use login from AuthContext
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -22,16 +24,20 @@ export default function Register() {
     setError("");
 
     try {
-      const res = await fetch(`${API}/api/auth/register`, {
+      const res = await fetch(`${API}/auth/register`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
+        credentials: "include", // ✅ so cookies/JWT get stored
         body: JSON.stringify(formData),
       });
 
       const data = await res.json();
 
       if (res.ok) {
-        navigate("/login");
+        // ✅ Auto-login after register
+        login(data);
+        localStorage.setItem("user", JSON.stringify(data));
+        navigate("/"); // go to dashboard
       } else {
         setError(data?.message || "Registration failed");
       }
@@ -81,7 +87,6 @@ export default function Register() {
           <button type="submit" className="btn">Register</button>
         </form>
 
-        {/* 👇 Login link */}
         <p className="switch-text">
           Already have an account?{" "}
           <Link to="/login" className="switch-link">

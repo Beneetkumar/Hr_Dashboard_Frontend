@@ -1,12 +1,11 @@
 import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { useAuth } from "../../hooks/useAuth"; // ✅ use AuthContext
 import "./Register.css";
 
-const API = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
+const API =
+  import.meta.env.VITE_API_URL || "http://localhost:5000"; // 👈 use env var
 
 export default function Register() {
-  const { login } = useAuth(); // ✅ use login from AuthContext
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -24,20 +23,17 @@ export default function Register() {
     setError("");
 
     try {
-      const res = await fetch(`${API}/auth/register`, {
+      const res = await fetch(`${API}/api/auth/register`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        credentials: "include", // ✅ so cookies/JWT get stored
         body: JSON.stringify(formData),
+        credentials: "include", // 👈 ensures cookie is stored
       });
 
       const data = await res.json();
 
       if (res.ok) {
-        // ✅ Auto-login after register
-        login(data);
-        localStorage.setItem("user", JSON.stringify(data));
-        navigate("/"); // go to dashboard
+        navigate("/login");
       } else {
         setError(data?.message || "Registration failed");
       }
@@ -84,7 +80,9 @@ export default function Register() {
               required
             />
           </div>
-          <button type="submit" className="btn">Register</button>
+          <button type="submit" className="btn">
+            Register
+          </button>
         </form>
 
         <p className="switch-text">

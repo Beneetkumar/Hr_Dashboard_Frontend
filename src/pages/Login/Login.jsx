@@ -10,30 +10,42 @@ export default function Login() {
   const [error, setError] = useState("");
   const navigate = useNavigate();
 
-  const handleLogin = async (e) => {
-    e.preventDefault();
-    setError("");
+ const handleLogin = async (e) => {
+  e.preventDefault();
+  setError("");
 
-    try {
-      const success = await login(email.trim().toLowerCase(), password);
+  try {
+    const res = await fetch(`${API}/auth/login`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+      body: JSON.stringify({
+        email: email.trim().toLowerCase(),
+        password,
+      }),
+    });
 
-      if (success === false) {
-        setError("Login failed. Please check credentials.");
+    const data = await res.json();
+
+    if (res.ok) {
+      if (!data?.role) {
+        setError("Login failed: role not found in response");
         return;
       }
-
-      // ✅ Extra role check (optional)
-      if (success.role !== "HR") {
+      if (data.role !== "HR") {
         setError("Access denied: This dashboard is for HR only.");
         return;
       }
-
+      localStorage.setItem("user", JSON.stringify(data));
+      login(data);
       navigate("/");
-    } catch (err) {
-      console.error("Login error:", err);
-      setError("Server error, please try again later");
+    } else {
+      setError(data?.message || "Login failed");
     }
-  };
+  } catch (err) {
+    setError("Server error, please try again later");
+  }
+};
 
   return (
     <div className="login-page">

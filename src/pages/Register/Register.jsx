@@ -1,12 +1,14 @@
 import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
+import { useAuth } from "../../hooks/useAuth"; 
 import "./Register.css";
 
 const API_BASE_URL =
   import.meta.env.VITE_API_URL ||
-  "https://hr-dashboard-backend-99kv.onrender.com/api"; // ✅ includes /api
+  "https://hr-dashboard-backend-99kv.onrender.com/api";
 
 export default function Register() {
+  const { user, login } = useAuth();
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -28,13 +30,16 @@ export default function Register() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),
-        credentials: "include", // ✅ ensures cookie is stored
+        credentials: "include", // ✅ cookie saved
       });
 
       const data = await res.json();
 
       if (res.ok) {
-        navigate("/login");
+        // ✅ user is already logged in (cookie set)
+        // fetch latest user via /auth/me (handled by context login)
+        await login(formData.email, formData.password); // or call fetchUserFromServer directly if exposed
+        navigate("/");
       } else {
         setError(data?.message || "Registration failed");
       }

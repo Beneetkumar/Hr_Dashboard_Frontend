@@ -30,24 +30,26 @@ export const AuthProvider = ({ children }) => {
 
   // Fetch user from backend if session cookie exists
   const fetchUserFromServer = async () => {
-    try {
-      const res = await fetch(`${API_BASE_URL}/auth/me`, {
-        credentials: "include",
-      });
-      if (res.ok) {
-        const data = await res.json();
-        setUser(data.user);
-        localStorage.setItem("user", JSON.stringify(data.user));
-      } else {
-        setUser(null);
-        localStorage.removeItem("user");
-      }
-    } catch (err) {
-      console.error("Session restore failed:", err);
-    } finally {
-      setLoading(false);
+  try {
+    const res = await fetch(`${API_BASE_URL}/auth/me`, {
+      credentials: 'include',
+    });
+    if (res.ok) {
+      const data = await res.json();
+      setUser(data.user);
+      localStorage.setItem('user', JSON.stringify(data.user));
+    } else if (res.status === 401) {
+      // Token expired or not authenticated
+      setUser(null);
+      localStorage.removeItem('user');
     }
-  };
+  } catch (err) {
+    console.error('Session restore failed:', err);
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   const login = (userData) => {
     setUser(userData);

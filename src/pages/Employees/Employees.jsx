@@ -10,20 +10,21 @@ export default function Employees() {
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState("");
 
-  const token = localStorage.getItem("token");
-
+  // ✅ Load employees
   const load = () => {
     setLoading(true);
     setError("");
+
     try {
       const url = new URL(`${API}/employees`);
       if (search.trim()) url.searchParams.set("search", search.trim());
       if (status) url.searchParams.set("status", status);
 
       fetch(url.toString(), {
+        method: "GET",
+        credentials: "include", // ✅ send cookies with request
         headers: {
           "Content-Type": "application/json",
-          ...(token ? { Authorization: `Bearer ${token}` } : {}),
         },
       })
         .then((res) => {
@@ -46,7 +47,6 @@ export default function Employees() {
 
   useEffect(() => {
     load();
-    
   }, []);
 
   const onFilterSubmit = (e) => {

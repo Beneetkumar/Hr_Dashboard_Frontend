@@ -2,7 +2,8 @@ import React, { useEffect, useState } from "react";
 import "./AddAttendance.css";
 
 const API =
-  import.meta.env.VITE_API_URL || "https://hr-dashboard-backend-99kv.onrender.com";
+  import.meta.env.VITE_API_URL ||
+  "https://hr-dashboard-backend-99kv.onrender.com";
 
 export default function AddAttendance({ onCreated, onClose }) {
   const [employees, setEmployees] = useState([]);
@@ -12,27 +13,36 @@ export default function AddAttendance({ onCreated, onClose }) {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
 
+  // ✅ Fetch employees list
   useEffect(() => {
-    fetch(`${API}/api/employees`, { credentials: "include" })
-      .then((r) => {
-        if (!r.ok) throw new Error("Failed to load employees");
-        return r.json();
-      })
-      .then((d) => {
-        const list = Array.isArray(d.items) ? d.items : d;
+    const fetchEmployees = async () => {
+      try {
+        const res = await fetch(`${API}/api/employees`, {
+          credentials: "include", // send cookie-based JWT
+        });
+
+        const data = await res.json();
+        if (!res.ok) throw new Error(data?.message || "Failed to load employees");
+
+        const list = Array.isArray(data.items) ? data.items : data;
         setEmployees(list);
+
+        // auto-select first employee
         if (list.length > 0) {
           setEmployeeId(list[0]._id);
         }
-        setLoading(false);
-      })
-      .catch((e) => {
-        setError(e.message);
+      } catch (err) {
+        setError(err.message);
         setEmployees([]);
+      } finally {
         setLoading(false);
-      });
+      }
+    };
+
+    fetchEmployees();
   }, []);
 
+  // ✅ Handle submit
   const submit = async (e) => {
     e.preventDefault();
     setError("");
@@ -41,7 +51,7 @@ export default function AddAttendance({ onCreated, onClose }) {
       const res = await fetch(`${API}/api/attendance`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        credentials: "include",
+        credentials: "include", // ensures auth cookie is sent
         body: JSON.stringify({
           employee: employeeId,
           date,
@@ -52,10 +62,10 @@ export default function AddAttendance({ onCreated, onClose }) {
       const data = await res.json();
       if (!res.ok) throw new Error(data?.message || "Failed to mark attendance");
 
-      onCreated?.(data);
-      onClose?.();
-    } catch (e) {
-      setError(e.message);
+      onCreated?.(data); // refresh parent list
+      onClose?.(); // close modal
+    } catch (err) {
+      setError(err.message);
     }
   };
 
@@ -68,6 +78,7 @@ export default function AddAttendance({ onCreated, onClose }) {
           <p>Loading employees...</p>
         ) : (
           <form onSubmit={submit}>
+            {/* Employee Select */}
             <div className="form-group">
               <label>Employee</label>
               <select
@@ -87,6 +98,7 @@ export default function AddAttendance({ onCreated, onClose }) {
               </select>
             </div>
 
+            {/* Date Picker */}
             <div className="form-group">
               <label>Date</label>
               <input
@@ -97,6 +109,7 @@ export default function AddAttendance({ onCreated, onClose }) {
               />
             </div>
 
+            {/* Status Select */}
             <div className="form-group">
               <label>Status</label>
               <select
@@ -104,14 +117,16 @@ export default function AddAttendance({ onCreated, onClose }) {
                 onChange={(e) => setStatus(e.target.value)}
                 required
               >
-                <option value="Present">Present</option>
-                <option value="Absent">Absent</option>
-                <option value="Half-Day">Half-Day</option>
+                <option value="Present">Present ✅</option>
+                <option value="Absent">Absent ❌</option>
+                <option value="Half-Day">Half-Day ⏳</option>
               </select>
             </div>
 
+            {/* Error message */}
             {error && <p className="error-text">{error}</p>}
 
+            {/* Actions */}
             <div className="form-actions">
               <button
                 type="submit"

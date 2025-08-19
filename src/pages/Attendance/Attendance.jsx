@@ -2,12 +2,13 @@ import React, { useEffect, useState } from "react";
 import "./Attendance.css";
 import AddAttendance from "./AddAttendance";
 
-const API = import.meta.env.VITE_API_URL; 
+// ✅ Use .env or fallback
+const API =
+  import.meta.env.VITE_API_URL || "https://hr-dashboard-backend-99kv.onrender.com/api";
 
 export default function Attendance() {
   const [attendance, setAttendance] = useState([]);
   const [employees, setEmployees] = useState([]);
-
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [showAdd, setShowAdd] = useState(false);
@@ -17,15 +18,18 @@ export default function Attendance() {
   const [date, setDate] = useState("");
   const [status, setStatus] = useState("");
 
- 
+  // ✅ Load employees for filter
   useEffect(() => {
-    fetch(`${API}/employees?status=Present`, { credentials: "include" })
-      .then((res) => res.json())
-      .then((data) => setEmployees(Array.isArray(data.items) ? data.items : []))
+    fetch(`${API}/employees`, { credentials: "include" })
+      .then((res) => {
+        if (!res.ok) throw new Error("Failed to fetch employees");
+        return res.json();
+      })
+      .then((data) => setEmployees(Array.isArray(data.items) ? data.items : data))
       .catch(() => setEmployees([]));
   }, []);
 
-  
+  // ✅ Load attendance
   const load = () => {
     setLoading(true);
     setError("");
@@ -59,7 +63,6 @@ export default function Attendance() {
     load();
   }, []);
 
-
   const onFilter = (e) => {
     e.preventDefault();
     load();
@@ -67,7 +70,6 @@ export default function Attendance() {
 
   return (
     <div className="attendance-page">
-     
       <div className="attendance-header">
         <h1>📋 Attendance</h1>
         <button
@@ -79,13 +81,10 @@ export default function Attendance() {
       </div>
 
       {showAdd && (
-        <AddAttendance
-          onCreated={load}
-          onClose={() => setShowAdd(false)}
-        />
+        <AddAttendance onCreated={load} onClose={() => setShowAdd(false)} />
       )}
 
-   
+      {/* ✅ Filters */}
       <form className="filters" onSubmit={onFilter}>
         <select
           value={empId}

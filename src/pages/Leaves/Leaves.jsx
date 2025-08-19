@@ -10,19 +10,30 @@ export default function Leaves() {
   const [leaves, setLeaves] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [message, setMessage] = useState("");
   const [showAdd, setShowAdd] = useState(false);
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState("");
 
+  const token = localStorage.getItem("token");
+
   const load = () => {
     setLoading(true);
     setError("");
+    setMessage("");
+
     try {
       const url = new URL(`${API}/leaves`);
       if (search.trim()) url.searchParams.set("search", search.trim());
       if (status) url.searchParams.set("status", status);
 
-      fetch(url.toString(), { credentials: "include" })
+      fetch(url.toString(), {
+        headers: {
+          "Content-Type": "application/json",
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+        credentials: "include",
+      })
         .then((r) => {
           if (!r.ok) throw new Error("Failed to fetch leaves");
           return r.json();
@@ -49,7 +60,10 @@ export default function Leaves() {
     try {
       const res = await fetch(`${API}/leaves/${id}/status`, {
         method: "PUT",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
         body: JSON.stringify({ status: newStatus }),
         credentials: "include",
       });
@@ -63,7 +77,7 @@ export default function Leaves() {
         throw new Error(data.message || "Failed to update status");
       }
 
-      alert(data.message || `Leave updated to ${newStatus}`);
+      setMessage(data.message || `Leave updated to ${newStatus}`);
       load();
     } catch (err) {
       console.error("Update error:", err.message);
@@ -91,7 +105,13 @@ export default function Leaves() {
       </div>
 
       {showAdd && (
-        <AddLeave onCreated={() => load()} onClose={() => setShowAdd(false)} />
+        <AddLeave
+          onCreated={() => {
+            setShowAdd(false);
+            load();
+          }}
+          onClose={() => setShowAdd(false)}
+        />
       )}
 
       <form className="leaves-filters" onSubmit={onFilterSubmit}>
@@ -119,6 +139,7 @@ export default function Leaves() {
 
       {loading && <p className="leaves-loading">Loading leaves...</p>}
       {error && <p className="leaves-error">{error}</p>}
+      {message && <p className="leaves-success">{message}</p>}
 
       {!loading && !error && (
         <>
@@ -142,10 +163,12 @@ export default function Leaves() {
                   </p>
                   <p>
                     <strong>From:</strong>{" "}
-                    {new Date(leave.startDate).toLocaleDateString()}
+                    {leave.startDate &&
+                      new Date(leave.startDate).toLocaleDateString()}
                     <br />
                     <strong>To:</strong>{" "}
-                    {new Date(leave.endDate).toLocaleDateString()}
+                    {leave.endDate &&
+                      new Date(leave.endDate).toLocaleDateString()}
                   </p>
                   {leave.docsUrl && (
                     <p>
@@ -161,6 +184,7 @@ export default function Leaves() {
                     </p>
                   )}
 
+                  {/* ✅ Only show Approve/Reject if Pending */}
                   {leave.status === "Pending" && (
                     <div className="leaves-actions">
                       <button

@@ -3,7 +3,7 @@ import "./AddAttendance.css";
 
 const API =
   import.meta.env.VITE_API_URL ||
-  "https://hr-dashboard-backend-99kv.onrender.com";
+  "https://hr-dashboard-backend-99kv.onrender.com/api";
 
 export default function AddAttendance({ onCreated, onClose }) {
   const [employees, setEmployees] = useState([]);
@@ -17,7 +17,7 @@ export default function AddAttendance({ onCreated, onClose }) {
   useEffect(() => {
     const fetchEmployees = async () => {
       try {
-        const res = await fetch(`${API}/api/employees`, {
+        const res = await fetch(`${API}/employees`, {
           credentials: "include", // send cookie-based JWT
         });
 
@@ -48,7 +48,7 @@ export default function AddAttendance({ onCreated, onClose }) {
     setError("");
 
     try {
-      const res = await fetch(`${API}/api/attendance`, {
+      const res = await fetch(`${API}/attendance`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include", // ensures auth cookie is sent

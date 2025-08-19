@@ -2,9 +2,10 @@ import React, { useEffect, useState } from "react";
 import "./Attendance.css";
 import AddAttendance from "./AddAttendance";
 
-// ✅ Use .env or fallback
+// ✅ Use .env or fallback to deployed backend
 const API =
-  import.meta.env.VITE_API_URL || "https://hr-dashboard-backend-99kv.onrender.com/api";
+  import.meta.env.VITE_API_URL ||
+  "https://hr-dashboard-backend-99kv.onrender.com/api";
 
 export default function Attendance() {
   const [attendance, setAttendance] = useState([]);
@@ -18,19 +19,28 @@ export default function Attendance() {
   const [date, setDate] = useState("");
   const [status, setStatus] = useState("");
 
-  // ✅ Load employees for filter
+  // ✅ Load employees for filter dropdown
   useEffect(() => {
-    fetch(`${API}/employees`, { credentials: "include" })
-      .then((res) => {
-        if (!res.ok) throw new Error("Failed to fetch employees");
-        return res.json();
-      })
-      .then((data) => setEmployees(Array.isArray(data.items) ? data.items : data))
-      .catch(() => setEmployees([]));
+    const fetchEmployees = async () => {
+      try {
+        const res = await fetch(`${API}/employees`, {
+          credentials: "include",
+        });
+
+        const data = await res.json();
+        if (!res.ok) throw new Error(data?.message || "Failed to fetch employees");
+
+        setEmployees(Array.isArray(data.items) ? data.items : data);
+      } catch (err) {
+        setEmployees([]);
+      }
+    };
+
+    fetchEmployees();
   }, []);
 
-  // ✅ Load attendance
-  const load = () => {
+  // ✅ Load attendance with filters
+  const load = async () => {
     setLoading(true);
     setError("");
 
@@ -40,25 +50,19 @@ export default function Attendance() {
       if (date) url.searchParams.set("date", date);
       if (status) url.searchParams.set("status", status);
 
-      fetch(url.toString(), { credentials: "include" })
-        .then((res) => {
-          if (!res.ok) throw new Error("Failed to fetch attendance");
-          return res.json();
-        })
-        .then((data) => {
-          setAttendance(Array.isArray(data.items) ? data.items : data);
-          setLoading(false);
-        })
-        .catch((err) => {
-          setError(err.message || "Something went wrong");
-          setLoading(false);
-        });
-    } catch {
-      setError("Invalid filter query");
+      const res = await fetch(url.toString(), { credentials: "include" });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data?.message || "Failed to fetch attendance");
+
+      setAttendance(Array.isArray(data.items) ? data.items : data);
+    } catch (err) {
+      setError(err.message || "Something went wrong");
+    } finally {
       setLoading(false);
     }
   };
 
+  // Initial load
   useEffect(() => {
     load();
   }, []);

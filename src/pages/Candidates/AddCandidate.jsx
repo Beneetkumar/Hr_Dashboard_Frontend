@@ -11,8 +11,6 @@ export default function AddCandidate({ onCreated, onClose }) {
   const [resumeFile, setResumeFile] = useState(null);
   const [error, setError] = useState("");
 
-  const token = localStorage.getItem("token");
-
   const onFileChange = (e) => {
     const f = e.target.files?.[0];
     setResumeFile(f || null);
@@ -32,9 +30,7 @@ export default function AddCandidate({ onCreated, onClose }) {
 
       const res = await fetch(`${API}/candidates`, {
         method: "POST",
-        headers: {
-          ...(token ? { Authorization: `Bearer ${token}` } : {}),
-        },
+        credentials: "include", // ✅ send cookies to backend
         body: formData,
       });
 
@@ -63,34 +59,62 @@ export default function AddCandidate({ onCreated, onClose }) {
         <form onSubmit={submit}>
           <div className="form-group">
             <label>Name</label>
-            <input value={name} onChange={(e) => setName(e.target.value)} required />
+            <input
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              required
+            />
           </div>
 
           <div className="form-group">
             <label>Email</label>
-            <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+            />
           </div>
 
           <div className="form-group">
             <label>Phone</label>
-            <input value={phone} onChange={(e) => setPhone(e.target.value)} required />
+            <input
+              value={phone}
+              onChange={(e) => setPhone(e.target.value)}
+              required
+            />
           </div>
 
           <div className="form-group">
             <label>Position</label>
-            <input value={position} onChange={(e) => setPosition(e.target.value)} />
+            <input
+              value={position}
+              onChange={(e) => setPosition(e.target.value)}
+            />
           </div>
 
           <div className="form-group">
             <label>Resume (PDF)</label>
-            <input type="file" accept="application/pdf" onChange={onFileChange} />
+            <input
+              type="file"
+              accept="application/pdf"
+              onChange={onFileChange}
+            />
           </div>
 
           {error && <p className="error-text">{error}</p>}
 
           <div className="form-actions">
-            <button type="submit" className="btn-primary">Save Candidate</button>
-            <button type="button" className="btn-secondary" onClick={onClose}>Cancel</button>
+            <button type="submit" className="btn-primary">
+              Save Candidate
+            </button>
+            <button
+              type="button"
+              className="btn-secondary"
+              onClick={onClose}
+            >
+              Cancel
+            </button>
           </div>
         </form>
       </div>

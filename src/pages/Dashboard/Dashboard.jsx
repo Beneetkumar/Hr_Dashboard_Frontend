@@ -2,7 +2,8 @@ import React, { useState, useEffect } from "react";
 import "./Dashboard.css";
 import { BiSolidDashboard } from "react-icons/bi";
 import { Link } from "react-router-dom";
-const API = "http://localhost:5000";
+
+const API = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
 
 export default function Dashboard() {
   const [stats, setStats] = useState({
@@ -12,14 +13,39 @@ export default function Dashboard() {
     leaves: 0,
   });
 
+  const token = localStorage.getItem("token");
+
   useEffect(() => {
     const fetchCounts = async () => {
       try {
         const [cand, emp, att, leave] = await Promise.all([
-          fetch(`${API}/api/candidates`, { credentials: "include" }).then((res) => res.json()),
-          fetch(`${API}/api/employees`, { credentials: "include" }).then((res) => res.json()),
-          fetch(`${API}/api/attendance`, { credentials: "include" }).then((res) => res.json()),
-          fetch(`${API}/api/leaves`, { credentials: "include" }).then((res) => res.json()),
+          fetch(`${API}/candidates`, {
+            headers: {
+              "Content-Type": "application/json",
+              ...(token ? { Authorization: `Bearer ${token}` } : {}),
+            },
+          }).then((res) => (res.ok ? res.json() : [])),
+
+          fetch(`${API}/employees`, {
+            headers: {
+              "Content-Type": "application/json",
+              ...(token ? { Authorization: `Bearer ${token}` } : {}),
+            },
+          }).then((res) => (res.ok ? res.json() : [])),
+
+          fetch(`${API}/attendance`, {
+            headers: {
+              "Content-Type": "application/json",
+              ...(token ? { Authorization: `Bearer ${token}` } : {}),
+            },
+          }).then((res) => (res.ok ? res.json() : [])),
+
+          fetch(`${API}/leaves`, {
+            headers: {
+              "Content-Type": "application/json",
+              ...(token ? { Authorization: `Bearer ${token}` } : {}),
+            },
+          }).then((res) => (res.ok ? res.json() : [])),
         ]);
 
         setStats({
@@ -34,13 +60,15 @@ export default function Dashboard() {
     };
 
     fetchCounts();
-  }, []);
+  }, [token]);
 
   return (
     <div className="dashboard-page">
-      <h1 className="dashboard-title"><BiSolidDashboard />&nbsp;Dashboard</h1>
+      <h1 className="dashboard-title">
+        <BiSolidDashboard />&nbsp;Dashboard
+      </h1>
       <div className="dashboard-grid">
-        <Link to ="/candidates" className="stat-card candidates">
+        <Link to="/candidates" className="stat-card candidates">
           <h3>Candidates</h3>
           <p>{stats.candidates}</p>
         </Link>
@@ -48,11 +76,11 @@ export default function Dashboard() {
           <h3>Employees</h3>
           <p>{stats.employees}</p>
         </Link>
-        <Link to ="/attendance" className="stat-card attendance">
+        <Link to="/attendance" className="stat-card attendance">
           <h3>Attendance</h3>
           <p>{stats.attendance}</p>
         </Link>
-        <Link to ='/leaves' className="stat-card leaves">
+        <Link to="/leaves" className="stat-card leaves">
           <h3>Leaves</h3>
           <p>{stats.leaves}</p>
         </Link>

@@ -1,12 +1,13 @@
 import React, { useEffect, useState } from "react";
 import "./AddLeave.css";
 
-const API = "http://localhost:5000";
+// ✅ Use environment variable instead of hardcoding
+const API = import.meta.env.VITE_API_URL;
 
 export default function AddLeave({ onCreated, onClose }) {
   const [employees, setEmployees] = useState([]);
   const [employeeId, setEmployeeId] = useState("");
-  const [type, setType] = useState("Sick"); // ✅ renamed from type → reason
+  const [type, setType] = useState("Sick");
   const [startDate, setStartDate] = useState(() =>
     new Date().toISOString().slice(0, 10)
   );
@@ -17,14 +18,7 @@ export default function AddLeave({ onCreated, onClose }) {
 
   // Load only Present employees for leave assignment
   useEffect(() => {
-    console.log({
-  employee: employeeId,
-  type,
-  reason,
-  startDate,
-  endDate,
-});
-    fetch(`${API}/api/employees?status=Present`, { credentials: "include" })
+    fetch(`${API}/employees?status=Present`, { credentials: "include" })
       .then((r) => r.json())
       .then((d) => setEmployees(Array.isArray(d.items) ? d.items : []))
       .catch(() => setEmployees([]));
@@ -35,13 +29,13 @@ export default function AddLeave({ onCreated, onClose }) {
     setError("");
 
     try {
-      const res = await fetch(`${API}/api/leaves`, {
+      const res = await fetch(`${API}/leaves`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
         body: JSON.stringify({
-          employee: employeeId, 
-          type,               
+          employee: employeeId,
+          type,
           startDate,
           endDate,
         }),
@@ -57,8 +51,8 @@ export default function AddLeave({ onCreated, onClose }) {
         throw new Error(msg);
       }
 
-      onCreated?.(data); 
-      onClose?.(); 
+      onCreated?.(data);
+      onClose?.();
     } catch (e) {
       setError(e.message);
     }
@@ -87,13 +81,12 @@ export default function AddLeave({ onCreated, onClose }) {
           </div>
 
           <div className="form-group">
-           <label>Leave Type</label>
-<select value={type} onChange={(e) => setType(e.target.value)}>
-  <option value="Sick">Sick</option>
-  <option value="Casual">Casual</option>
-  <option value="Earned">Earned</option>
-</select>
-
+            <label>Leave Type</label>
+            <select value={type} onChange={(e) => setType(e.target.value)}>
+              <option value="Sick">Sick</option>
+              <option value="Casual">Casual</option>
+              <option value="Earned">Earned</option>
+            </select>
           </div>
 
           <div className="form-group">
@@ -119,7 +112,9 @@ export default function AddLeave({ onCreated, onClose }) {
           {error && <p className="error-text">{error}</p>}
 
           <div className="form-actions">
-            <button type="submit" className="btn-primary">Save Leave</button>
+            <button type="submit" className="btn-primary">
+              Save Leave
+            </button>
             <button type="button" className="btn-secondary" onClick={onClose}>
               Cancel
             </button>

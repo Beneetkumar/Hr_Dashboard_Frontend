@@ -13,7 +13,7 @@ export const AuthProvider = ({ children }) => {
     fetchUserFromServer();
   }, []);
 
-  // ✅ helper to get logged-in user from backend
+
   const fetchUserFromServer = async () => {
     try {
       const res = await fetch(`${API_BASE_URL}/auth/me`, {
@@ -22,7 +22,7 @@ export const AuthProvider = ({ children }) => {
 
       if (res.ok) {
         const data = await res.json();
-        setUser(data); // only _id, name, email
+        setUser(data); 
       } else {
         setUser(null);
       }
@@ -34,7 +34,7 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  // ✅ login: handles email/password directly
+ 
   const login = async (email, password) => {
     try {
       const res = await fetch(`${API_BASE_URL}/auth/login`, {
@@ -53,11 +53,11 @@ export const AuthProvider = ({ children }) => {
     } catch (err) {
       console.error("Login error:", err);
       setUser(null);
-      throw err; // ✅ rethrow so Login.jsx can display error
+      throw err;
     }
   };
 
-  // ✅ logout: clear session cookie
+
   const logout = async () => {
     try {
       await fetch(`${API_BASE_URL}/auth/logout`, {

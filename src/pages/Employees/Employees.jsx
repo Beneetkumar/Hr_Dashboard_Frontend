@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import "./Employees.css";
 
-const API = "http://localhost:5000";
+const API = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
 
 export default function Employees() {
   const [employees, setEmployees] = useState([]);
@@ -10,15 +10,22 @@ export default function Employees() {
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState("");
 
+  const token = localStorage.getItem("token");
+
   const load = () => {
     setLoading(true);
     setError("");
     try {
-      const url = new URL(`${API}/api/employees`);
+      const url = new URL(`${API}/employees`);
       if (search.trim()) url.searchParams.set("search", search.trim());
       if (status) url.searchParams.set("status", status);
 
-      fetch(url.toString(), { credentials: "include" })
+      fetch(url.toString(), {
+        headers: {
+          "Content-Type": "application/json",
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+      })
         .then((res) => {
           if (!res.ok) throw new Error("Failed to fetch employees");
           return res.json();
@@ -39,6 +46,7 @@ export default function Employees() {
 
   useEffect(() => {
     load();
+    
   }, []);
 
   const onFilterSubmit = (e) => {
@@ -50,7 +58,6 @@ export default function Employees() {
     <div className="employees-page">
       <h1 className="employees-title">👨‍💼 Employees</h1>
 
-    
       <form className="filters" onSubmit={onFilterSubmit}>
         <input
           type="text"

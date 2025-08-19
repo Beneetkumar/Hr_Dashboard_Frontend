@@ -2,51 +2,54 @@ import React, { useEffect, useState } from "react";
 import "./Attendance.css";
 import AddAttendance from "./AddAttendance";
 
-const API = "http://localhost:5000";
+const API = import.meta.env.VITE_API_URL; 
 
 export default function Attendance() {
   const [attendance, setAttendance] = useState([]);
+  const [employees, setEmployees] = useState([]);
+
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [showAdd, setShowAdd] = useState(false);
 
+  // Filters
   const [empId, setEmpId] = useState("");
   const [date, setDate] = useState("");
   const [status, setStatus] = useState("");
 
-  const [employees, setEmployees] = useState([]);
-
-
+ 
   useEffect(() => {
-    fetch(`${API}/api/employees?status=Present`, { credentials: "include" })
-      .then((r) => r.json())
-      .then((d) => setEmployees(Array.isArray(d.items) ? d.items : []))
+    fetch(`${API}/employees?status=Present`, { credentials: "include" })
+      .then((res) => res.json())
+      .then((data) => setEmployees(Array.isArray(data.items) ? data.items : []))
       .catch(() => setEmployees([]));
   }, []);
 
+  
   const load = () => {
     setLoading(true);
     setError("");
+
     try {
-      const url = new URL(`${API}/api/attendance`);
+      const url = new URL(`${API}/attendance`);
       if (empId) url.searchParams.set("employee", empId);
       if (date) url.searchParams.set("date", date);
       if (status) url.searchParams.set("status", status);
 
       fetch(url.toString(), { credentials: "include" })
-        .then((r) => {
-          if (!r.ok) throw new Error("Failed to fetch attendance");
-          return r.json();
+        .then((res) => {
+          if (!res.ok) throw new Error("Failed to fetch attendance");
+          return res.json();
         })
-        .then((d) => {
-          setAttendance(Array.isArray(d.items) ? d.items : d);
+        .then((data) => {
+          setAttendance(Array.isArray(data.items) ? data.items : data);
           setLoading(false);
         })
-        .catch((e) => {
-          setError(e.message);
+        .catch((err) => {
+          setError(err.message || "Something went wrong");
           setLoading(false);
         });
-    } catch (e) {
+    } catch {
       setError("Invalid filter query");
       setLoading(false);
     }
@@ -56,6 +59,7 @@ export default function Attendance() {
     load();
   }, []);
 
+
   const onFilter = (e) => {
     e.preventDefault();
     load();
@@ -63,11 +67,12 @@ export default function Attendance() {
 
   return (
     <div className="attendance-page">
+     
       <div className="attendance-header">
         <h1>📋 Attendance</h1>
         <button
           className="btn-primary"
-          onClick={() => setShowAdd((s) => !s)}
+          onClick={() => setShowAdd((prev) => !prev)}
         >
           {showAdd ? "Close Form" : "+ Mark Attendance"}
         </button>
@@ -75,12 +80,12 @@ export default function Attendance() {
 
       {showAdd && (
         <AddAttendance
-          onCreated={() => load()}
+          onCreated={load}
           onClose={() => setShowAdd(false)}
         />
       )}
 
-      {/* Filter form */}
+   
       <form className="filters" onSubmit={onFilter}>
         <select
           value={empId}
@@ -88,18 +93,20 @@ export default function Attendance() {
           className="select"
         >
           <option value="">All Employees</option>
-          {employees.map((e) => (
-            <option key={e._id} value={e._id}>
-              {e.name}
+          {employees.map((emp) => (
+            <option key={emp._id} value={emp._id}>
+              {emp.name}
             </option>
           ))}
         </select>
+
         <input
           type="date"
           value={date}
           onChange={(e) => setDate(e.target.value)}
           className="date-input"
         />
+
         <select
           value={status}
           onChange={(e) => setStatus(e.target.value)}
@@ -110,6 +117,7 @@ export default function Attendance() {
           <option value="Absent">Absent</option>
           <option value="Half-Day">Half-Day</option>
         </select>
+
         <button type="submit" className="btn">Search</button>
       </form>
 
@@ -117,22 +125,19 @@ export default function Attendance() {
       {error && <p className="error-text">{error}</p>}
 
       {!loading && !error && (
-        <>
-          {attendance.length === 0 ? (
-            <p className="empty-state">No attendance records found.</p>
-          ) : (
-            <div className="attendance-grid">
-              {attendance.map((record) => (
-                <div className="attendance-card" key={record._id}>
-                  <h3>{record.employee.name}</h3>
-                  
-                  <p><strong>Status:</strong> {record.status}</p>
-                  <p><strong>Date:</strong> {record.date?.slice(0, 10)}</p>
-                </div>
-              ))}
-            </div>
-          )}
-        </>
+        attendance.length === 0 ? (
+          <p className="empty-state">No attendance records found.</p>
+        ) : (
+          <div className="attendance-grid">
+            {attendance.map((record) => (
+              <div className="attendance-card" key={record._id}>
+                <h3>{record.employee?.name || "Unknown"}</h3>
+                <p><strong>Status:</strong> {record.status}</p>
+                <p><strong>Date:</strong> {record.date?.slice(0, 10)}</p>
+              </div>
+            ))}
+          </div>
+        )
       )}
     </div>
   );

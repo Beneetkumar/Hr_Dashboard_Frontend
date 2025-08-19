@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import "./AddCandidate.css";
 
-const API = "http://localhost:5000";
+const API = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
 
 export default function AddCandidate({ onCreated, onClose }) {
   const [name, setName] = useState("");
@@ -10,6 +10,8 @@ export default function AddCandidate({ onCreated, onClose }) {
   const [position, setPosition] = useState("");
   const [resumeFile, setResumeFile] = useState(null);
   const [error, setError] = useState("");
+
+  const token = localStorage.getItem("token");
 
   const onFileChange = (e) => {
     const f = e.target.files?.[0];
@@ -26,12 +28,14 @@ export default function AddCandidate({ onCreated, onClose }) {
       formData.append("email", email);
       formData.append("phone", phone);
       if (position) formData.append("position", position);
-      if (resumeFile) formData.append("resume", resumeFile); 
+      if (resumeFile) formData.append("resume", resumeFile);
 
-      const res = await fetch(`${API}/api/candidates`, {
+      const res = await fetch(`${API}/candidates`, {
         method: "POST",
-        credentials: "include", 
-        body: formData, 
+        headers: {
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+        body: formData,
       });
 
       const data = await res.json();

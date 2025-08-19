@@ -2,7 +2,9 @@ import React, { useEffect, useState } from "react";
 import "./Leaves.css";
 import AddLeave from "./AddLeave";
 import { FcLeave } from "react-icons/fc";
-const API = "http://localhost:5000";
+
+// ✅ Use env variable instead of hardcoded localhost
+const API = import.meta.env.VITE_API_URL;
 
 export default function Leaves() {
   const [leaves, setLeaves] = useState([]);
@@ -12,12 +14,11 @@ export default function Leaves() {
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState("");
 
- 
   const load = () => {
     setLoading(true);
     setError("");
     try {
-      const url = new URL(`${API}/api/leaves`);
+      const url = new URL(`${API}/leaves`);
       if (search.trim()) url.searchParams.set("search", search.trim());
       if (status) url.searchParams.set("status", status);
 
@@ -44,10 +45,9 @@ export default function Leaves() {
     load();
   }, []);
 
-
   const updateStatus = async (id, newStatus) => {
     try {
-      const res = await fetch(`${API}/api/leaves/${id}/status`, {
+      const res = await fetch(`${API}/leaves/${id}/status`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ status: newStatus }),
@@ -78,9 +78,10 @@ export default function Leaves() {
 
   return (
     <div className="leaves-container">
-      
       <div className="leaves-header">
-        <h1 className="leaves-heading"><FcLeave />&nbsp;Leaves</h1>
+        <h1 className="leaves-heading">
+          <FcLeave /> &nbsp;Leaves
+        </h1>
         <button
           className="leaves-btn-primary"
           onClick={() => setShowAdd((s) => !s)}
@@ -89,12 +90,10 @@ export default function Leaves() {
         </button>
       </div>
 
-
       {showAdd && (
         <AddLeave onCreated={() => load()} onClose={() => setShowAdd(false)} />
       )}
 
-  
       <form className="leaves-filters" onSubmit={onFilterSubmit}>
         <input
           type="text"
@@ -121,7 +120,6 @@ export default function Leaves() {
       {loading && <p className="leaves-loading">Loading leaves...</p>}
       {error && <p className="leaves-error">{error}</p>}
 
-   
       {!loading && !error && (
         <>
           {leaves.length === 0 ? (
@@ -163,7 +161,6 @@ export default function Leaves() {
                     </p>
                   )}
 
-                
                   {leave.status === "Pending" && (
                     <div className="leaves-actions">
                       <button

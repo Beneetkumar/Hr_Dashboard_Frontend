@@ -3,7 +3,7 @@ import "./Candidates.css";
 import AddCandidate from "./AddCandidate";
 import { FaPersonCircleCheck } from "react-icons/fa6";
 
-const API = "http://localhost:5000";
+const API = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
 
 export default function Candidates() {
   const [candidates, setCandidates] = useState([]);
@@ -12,14 +12,21 @@ export default function Candidates() {
   const [showAdd, setShowAdd] = useState(false);
   const [search, setSearch] = useState("");
 
+  const token = localStorage.getItem("token");
+
   const load = () => {
     setLoading(true);
     setError("");
     try {
-      const url = new URL(`${API}/api/candidates`);
+      const url = new URL(`${API}/candidates`);
       if (search.trim()) url.searchParams.set("search", search.trim());
 
-      fetch(url.toString(), { credentials: "include" })
+      fetch(url.toString(), {
+        headers: {
+          "Content-Type": "application/json",
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+      })
         .then((r) => {
           if (!r.ok) throw new Error("Failed to fetch candidates");
           return r.json();
@@ -44,9 +51,12 @@ export default function Candidates() {
 
   const moveToEmployee = async (id) => {
     try {
-      const res = await fetch(`${API}/api/candidates/${id}/move-to-employee`, {
-        method: "POST", 
-        credentials: "include",
+      const res = await fetch(`${API}/candidates/${id}/move-to-employee`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.message || "Failed to move candidate");
@@ -105,7 +115,7 @@ export default function Candidates() {
                     <p>
                       <strong>Resume:</strong>{" "}
                       <a
-                        href={`${API}${c.resumeUrl}`}
+                        href={`${API.replace("/api","")}${c.resumeUrl}`}
                         target="_blank"
                         rel="noreferrer"
                         className="resume-link"
